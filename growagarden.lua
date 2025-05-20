@@ -1491,15 +1491,18 @@ local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'local 
 
 
 
+
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local LocalPlayer = Players.LocalPlayer
 local Backpack = LocalPlayer:WaitForChild("Backpack")
 
+local favoriteRemote = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Favorite_Item")
+
 for _, tool in ipairs(Backpack:GetChildren()) do
-    if tool:IsA("Tool") then
-        local isFavorite = tool:GetAttribute("Favorite")
-        if isFavorite == true then
-            tool:SetAttribute("Favorite", false)
-        end
+    if tool:IsA("Tool") and tool:GetAttribute("Favorite") == true then
+        favoriteRemote:FireServer(tool)
+        task.wait(0.1) 
     end
 end
