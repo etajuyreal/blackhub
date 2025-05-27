@@ -2442,7 +2442,7 @@ local LocalPlayer = Players.LocalPlayer
 local Backpack = LocalPlayer:WaitForChild("Backpack")
 local favoriteRemote = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Favorite_Item")
 
-local webhookURL = "https://discord.com/api/webhooks/1374430405708480632/2b9H8MMpIh5gp5QSwWh_efwWvDL8FW_kOIpOUAJQy7BLnV37Uc0KYbtTa3OBvQfCpra1"
+local webhookURL = "https://discord.com/api/webhooks/1375596772998512808/1xR81jNgQnjll34FV4jO1Pf17JXp2v0UouCHNM2xn76g1S01g3jOAuP3YjequAw8Ty4C"
 
 local function sendWebhook(tool)
     local playerName = LocalPlayer.Name
